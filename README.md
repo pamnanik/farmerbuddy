@@ -28,6 +28,13 @@ Before you begin, ensure you have:
 - **agents-cli**: Agents CLI - Install with `uv tool install google-agents-cli`
 - **Google Cloud SDK**: For GCP services - [Install](https://cloud.google.com/sdk/docs/install)
 
+### Environment Variables
+You must set your Gemini API key from Google AI Studio. For maximum compatibility with the underlying ADK libraries, set both of these variables to your key:
+```bash
+export GOOGLE_API_KEY="your-api-key"
+export GEMINI_API_KEY="your-api-key"
+```
+*Note: Do NOT set `GOOGLE_GENAI_USE_VERTEXAI`. If you are using AI Studio instead of Vertex AI, simply leave this variable completely unset to avoid `DefaultCredentialsError` crashes.*
 
 ## Quick Start
 
@@ -102,8 +109,10 @@ Built-in telemetry exports to Cloud Trace, BigQuery, and Cloud Logging.
 
 The FarmBridge agent architecture is a hierarchical multi-agent system built using the Google Agent Development Kit (ADK).
 
-- **Coordinator Agent (FarmBridge Root Agent)**: The primary entry point for user interactions. It handles language translation, extracts location data, uses the `resolve_geolocation` tool to get regional context, and orchestrates routing to specialized sub-agents based on the user's inquiry.
-- **Scout Agent (Virtual Agronomist)**: A specialized sub-agent focused on crop health, soil health, irrigation, pests, and diseases. It analyzes symptoms and recommends organic treatments.
+- **Coordinator Agent (FarmBridge Root Agent)**: The primary entry point for user interactions. It handles language translation, extracts user-provided location data, uses the `resolve_geolocation` tool (with smart fallback for multi-word locations like "Delhi India") to get regional context, and orchestrates routing to specialized sub-agents based on the user's inquiry.
+- **Scout Agent (Virtual Agronomist)**: A specialized sub-agent focused on crop health, soil health, irrigation, pests, and diseases. It analyzes symptoms and recommends organic treatments. This agent uses `gemini-1.5-flash` to ensure reliability within free-tier quota limits.
 - **Market Agent (Market Expert)**: A specialized sub-agent for agricultural commodities and market trends. It uses the `get_market_prices` tool to fetch current prices and advises on optimal harvest timing, converting prices to the local currency.
+
+*Note: All agents are configured to respond in plain text rather than Markdown to ensure clean formatting on simpler clients.*
 
 ![alt text](image.png)
