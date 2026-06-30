@@ -7,12 +7,14 @@ def resolve_geolocation(location_name: str) -> dict:
     """Gets the geolocation coordinates and details for a given location name.
 
     Args:
-        location_name: The name of the city, region, or address.
+        location_name: The name of the city, region, or address. Can be 'auto' or empty to detect via IP.
 
     Returns:
         dict with 'status' and location data (latitude, longitude, timezone).
     """
     try:
+        location_name = location_name.strip() if location_name else "Delhi"
+            
         query = urllib.parse.quote(location_name)
         url = f"https://geocoding-api.open-meteo.com/v1/search?name={query}&count=1"
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -28,6 +30,13 @@ def resolve_geolocation(location_name: str) -> dict:
                     "country": result.get("country"),
                     "name": result.get("name")
                 }
+            
+            # Fallback: If it's a multi-word location (e.g., "Delhi India" or "Delhi, India"), 
+            # try resolving using just the first part (usually the city).
+            parts = [p.strip() for p in location_name.replace(",", " ").split() if p.strip()]
+            if len(parts) > 1:
+                return resolve_geolocation(parts[0])
+                
             return {"status": "not_found", "message": f"No location found for {location_name}"}
     except Exception as e:
         logging.error(f"Error fetching geolocation: {e}")

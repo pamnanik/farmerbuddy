@@ -1,5 +1,8 @@
 # farmbridge
 
+<div align="center">
+  <img src="cover.png" alt="FarmBridge Cover Photo" width="800">
+</div>
 Simple ReAct agent
 Agent generated with `agents-cli` version `0.5.0`
 
@@ -46,6 +49,13 @@ Test the agent with a local web server:
 agents-cli playground
 ```
 
+Or run the custom interactive web application (which supports photo attachments and immersive Voice/TTS toggles):
+
+```bash
+uv run uvicorn app.web_app:app --host 127.0.0.1 --port 8081 --reload
+```
+Open your browser at `http://127.0.0.1:8081` to use it.
+
 You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`.
 
 ## Commands
@@ -87,3 +97,13 @@ To set up your production infrastructure, run `agents-cli infra cicd`.
 ## Observability
 
 Built-in telemetry exports to Cloud Trace, BigQuery, and Cloud Logging.
+
+## Architecture
+
+The FarmBridge agent architecture is a hierarchical multi-agent system built using the Google Agent Development Kit (ADK).
+
+- **Coordinator Agent (FarmBridge Root Agent)**: The primary entry point for user interactions. It handles language translation, extracts location data, uses the `resolve_geolocation` tool to get regional context, and orchestrates routing to specialized sub-agents based on the user's inquiry.
+- **Scout Agent (Virtual Agronomist)**: A specialized sub-agent focused on crop health, soil health, irrigation, pests, and diseases. It analyzes symptoms and recommends organic treatments.
+- **Market Agent (Market Expert)**: A specialized sub-agent for agricultural commodities and market trends. It uses the `get_market_prices` tool to fetch current prices and advises on optimal harvest timing, converting prices to the local currency.
+
+![alt text](image.png)
